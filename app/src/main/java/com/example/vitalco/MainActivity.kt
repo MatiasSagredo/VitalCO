@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -27,10 +25,10 @@ import com.example.vitalco.navigation.BottomNavItem
 import com.example.vitalco.navigation.Routes
 import com.example.vitalco.ui.screens.Home
 import com.example.vitalco.ui.screens.LoginScreen
+import com.example.vitalco.ui.screens.ProductDetailScreen
 import com.example.vitalco.ui.screens.ProfileScreen
 import com.example.vitalco.ui.screens.RegisterScreen
 import com.example.vitalco.ui.theme.VitalCOTheme
-import com.example.vitalco.ui.viewmodel.LoginViewModel
 import com.example.vitalco.ui.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
@@ -86,8 +84,8 @@ fun App() {
             ) {
                 RegisterScreen(
                     onRegisterSuccess = {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(Routes.REGISTER) { inclusive = true }
                         }
                     },
                     onNavigateBack = {
@@ -103,7 +101,22 @@ fun App() {
                 Scaffold(
                     bottomBar = { BottomBar(navController, bottomItems) }
                 ) { innerPadding ->
-                    Home(modifier = Modifier.padding(innerPadding))
+                    Home(
+                        modifier = Modifier.padding(innerPadding),
+                        onNavigateToDetail = { product ->
+                            mainViewModel.setSelectedProduct(product)
+                            navController.navigate(Routes.PRODUCT_DETAIL)
+                        }
+                    )
+                }
+            }
+            composable(Routes.PRODUCT_DETAIL) {
+                val selectedProduct = mainViewModel.selectedProduct
+                if (selectedProduct != null) {
+                    ProductDetailScreen(
+                        product = selectedProduct,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
             }
             composable(

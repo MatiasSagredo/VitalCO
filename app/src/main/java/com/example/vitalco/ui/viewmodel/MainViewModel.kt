@@ -1,20 +1,21 @@
 package com.example.vitalco.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.example.vitalco.data.remote.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    private val _items = MutableStateFlow<List<String>>(emptyList())
-    val items: StateFlow<List<String>> = _items.asStateFlow()
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            _items.value = listOf("Item 1", "Item 2", "Item 3")
-        }
+    fun setCurrentUser(user: User) {
+        _currentUser.value = user
+    }
+
+    fun logout() {
+        _currentUser.value = null
     }
 }

@@ -2,7 +2,7 @@ package com.example.vitalco.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -15,8 +15,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 sealed class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
-    object Home : BottomNavItem(Routes.HOME, "Inicio", Icons.Default.Home)
-    object Profile : BottomNavItem(Routes.PROFILE, "Perfil", Icons.Default.Person)
+    object Home : BottomNavItem(Routes.HOME, "Inicio", Icons.Filled.Home)
+    object Profile : BottomNavItem(Routes.PROFILE, "Perfil", Icons.Filled.AccountCircle)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

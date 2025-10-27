@@ -42,6 +42,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.validation.AdjustStockValidation
+import com.example.vitalco.data.validation.BuyValidation
+import com.example.vitalco.data.validation.EditProductValidation
+import com.example.vitalco.data.validation.SellValidation
 import com.example.vitalco.ui.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +66,7 @@ fun ProductDetailScreen(
     var editName by remember { mutableStateOf(product.name) }
     var editDescription by remember { mutableStateOf(product.description) }
     var editPrice by remember { mutableStateOf(product.priceClp.toString()) }
+    var editErrorMessage by remember { mutableStateOf<String?>(null) }
 
     // Observar cambios en los productos del viewmodel
     val products by viewModel.products.collectAsState()
@@ -105,9 +110,20 @@ fun ProductDetailScreen(
         ) {
             if (isEditMode) {
                 // Modo edición
+                if (editErrorMessage != null) {
+                    Text(
+                        text = editErrorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
                 OutlinedTextField(
                     value = editName,
-                    onValueChange = { editName = it },
+                    onValueChange = { 
+                        editName = it
+                        editErrorMessage = null
+                    },
                     label = { Text("Nombre") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -116,7 +132,10 @@ fun ProductDetailScreen(
 
                 OutlinedTextField(
                     value = editDescription,
-                    onValueChange = { editDescription = it },
+                    onValueChange = { 
+                        editDescription = it
+                        editErrorMessage = null
+                    },
                     label = { Text("Descripción") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -125,7 +144,10 @@ fun ProductDetailScreen(
 
                 OutlinedTextField(
                     value = editPrice,
-                    onValueChange = { editPrice = it },
+                    onValueChange = { 
+                        editPrice = it
+                        editErrorMessage = null
+                    },
                     label = { Text("Precio (CLP)") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -135,13 +157,18 @@ fun ProductDetailScreen(
 
                 Button(
                     onClick = {
-                        val updatedProduct = product.copy(
-                            name = editName,
-                            description = editDescription,
-                            priceClp = editPrice.toDoubleOrNull() ?: product.priceClp
-                        )
-                        viewModel.updateProductStock(updatedProduct, updatedProduct.currentStock)
-                        isEditMode = false
+                        val error = EditProductValidation.validateAll(editName, editDescription, editPrice)
+                        if (error != null) {
+                            editErrorMessage = error
+                        } else {
+                            val updatedProduct = product.copy(
+                                name = editName,
+                                description = editDescription,
+                                priceClp = editPrice.toDoubleOrNull() ?: product.priceClp
+                            )
+                            viewModel.updateProductStock(updatedProduct, updatedProduct.currentStock)
+                            isEditMode = false
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -316,6 +343,7 @@ fun AdjustStockDialog(
     onAdjust: (Int) -> Unit
 ) {
     var newStock by remember { mutableStateOf(product.currentStock.toString()) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -324,9 +352,20 @@ fun AdjustStockDialog(
             Column {
                 Text("Stock actual: ${product.currentStock}")
                 Spacer(modifier = Modifier.height(12.dp))
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
                 OutlinedTextField(
                     value = newStock,
-                    onValueChange = { newStock = it },
+                    onValueChange = { 
+                        newStock = it
+                        errorMessage = null
+                    },
                     label = { Text("Nuevo Stock") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -336,8 +375,14 @@ fun AdjustStockDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val quantity = newStock.toIntOrNull() ?: product.currentStock
-                    onAdjust(quantity)
+                    val error = AdjustStockValidation.validateNewStock(newStock)
+                    if (error != null) {
+                        errorMessage = error
+                    } else {
+                        val quantity = newStock.toInt()
+                        onAdjust(quantity)
+                        onDismiss()
+                    }
                 }
             ) {
                 Text("Guardar")
@@ -358,6 +403,7 @@ fun SellQuantityDialog(
     onSell: (Int) -> Unit
 ) {
     var quantity by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -366,9 +412,20 @@ fun SellQuantityDialog(
             Column {
                 Text("Stock disponible: ${product.currentStock}")
                 Spacer(modifier = Modifier.height(12.dp))
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = { quantity = it },
+                    onValueChange = { 
+                        quantity = it
+                        errorMessage = null
+                    },
                     label = { Text("Cantidad a Vender") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -378,9 +435,13 @@ fun SellQuantityDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val qty = quantity.toIntOrNull() ?: 0
-                    if (qty > 0 && qty <= product.currentStock) {
+                    val error = SellValidation.validateAll(quantity, product.currentStock)
+                    if (error != null) {
+                        errorMessage = error
+                    } else {
+                        val qty = quantity.toInt()
                         onSell(qty)
+                        onDismiss()
                     }
                 }
             ) {
@@ -402,6 +463,7 @@ fun BuyQuantityDialog(
     onBuy: (Int) -> Unit
 ) {
     var quantity by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -410,9 +472,20 @@ fun BuyQuantityDialog(
             Column {
                 Text("Stock actual: ${product.currentStock}")
                 Spacer(modifier = Modifier.height(12.dp))
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = { quantity = it },
+                    onValueChange = { 
+                        quantity = it
+                        errorMessage = null
+                    },
                     label = { Text("Cantidad a Comprar") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -422,9 +495,13 @@ fun BuyQuantityDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val qty = quantity.toIntOrNull() ?: 0
-                    if (qty > 0) {
+                    val error = BuyValidation.validateQuantity(quantity)
+                    if (error != null) {
+                        errorMessage = error
+                    } else {
+                        val qty = quantity.toInt()
                         onBuy(qty)
+                        onDismiss()
                     }
                 }
             ) {

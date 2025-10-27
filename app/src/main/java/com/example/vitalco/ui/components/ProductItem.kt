@@ -54,7 +54,7 @@ fun ProductItem(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "${product.currentStock} u",
+                    text = "${product.currentStock} ${if (product.currentStock == 1) "unidad" else "unidades"}",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )

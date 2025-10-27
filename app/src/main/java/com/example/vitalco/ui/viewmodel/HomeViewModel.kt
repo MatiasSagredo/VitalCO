@@ -5,13 +5,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vitalco.data.remote.AppDatabase
 import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.repository.ProductRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
-    private val productDao = AppDatabase.getDatabase(application).productDao()
+    private val productRepository = ProductRepositoryImpl(
+        AppDatabase.getDatabase(application).productDao()
+    )
 
     private val _products = MutableStateFlow<List<Product>>(emptyList())
     val products: StateFlow<List<Product>> = _products.asStateFlow()
@@ -32,7 +35,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadAllProducts() {
         viewModelScope.launch {
-            productDao.getAllProducts().collect { products ->
+            productRepository.getAllProducts().collect { products ->
                 _products.value = products
             }
         }
@@ -40,7 +43,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadLowStockProducts() {
         viewModelScope.launch {
-            productDao.getLowStockProducts().collect { products ->
+            productRepository.getLowStockProducts().collect { products ->
                 _lowStockProducts.value = products
             }
         }
@@ -52,7 +55,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         viewModelScope.launch {
-            productDao.searchProducts(query).collect { products ->
+            productRepository.searchProducts(query).collect { products ->
                 _searchResults.value = products
             }
         }
@@ -62,7 +65,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                productDao.addProduct(product)
+                productRepository.addProduct(product)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -76,7 +79,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 _isLoading.value = true
                 val updated = product.copy(currentStock = newStock)
-                productDao.updateProduct(updated)
+                productRepository.updateProduct(updated)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -88,7 +91,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteProduct(product: Product) {
         viewModelScope.launch {
             try {
-                productDao.deleteProduct(product)
+                productRepository.deleteProduct(product)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

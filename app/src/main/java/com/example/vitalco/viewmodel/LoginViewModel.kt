@@ -1,9 +1,9 @@
-package com.example.vitalco.ui.viewmodel
+package com.example.vitalco.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.vitalco.data.remote.AppDatabase
-import com.example.vitalco.data.remote.model.User
+import com.example.vitalco.data.model.User
 import com.example.vitalco.data.repository.UserRepositoryImpl
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {

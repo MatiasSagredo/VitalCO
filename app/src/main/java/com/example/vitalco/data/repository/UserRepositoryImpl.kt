@@ -1,7 +1,7 @@
 package com.example.vitalco.data.repository
 
 import com.example.vitalco.data.remote.dao.UserDao
-import com.example.vitalco.data.remote.model.User
+import com.example.vitalco.data.model.User
 
 class UserRepositoryImpl(
     private val userDao: UserDao

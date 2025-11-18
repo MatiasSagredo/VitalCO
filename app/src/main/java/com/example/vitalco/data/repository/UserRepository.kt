@@ -1,6 +1,6 @@
 package com.example.vitalco.data.repository
 
-import com.example.vitalco.data.remote.model.User
+import com.example.vitalco.data.model.User
 
 interface UserRepository {
     suspend fun login(username: String, password: String): Result<User>

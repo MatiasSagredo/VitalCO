@@ -20,7 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.model.Product
 import com.example.vitalco.data.validation.AddProductValidation
 
 @Composable

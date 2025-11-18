@@ -29,7 +29,7 @@ import com.example.vitalco.ui.screens.ProductDetailScreen
 import com.example.vitalco.ui.screens.ProfileScreen
 import com.example.vitalco.ui.screens.RegisterScreen
 import com.example.vitalco.ui.theme.VitalCOTheme
-import com.example.vitalco.ui.viewmodel.MainViewModel
+import com.example.vitalco.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

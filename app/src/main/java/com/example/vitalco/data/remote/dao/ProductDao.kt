@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.model.Product
 import kotlinx.coroutines.flow.Flow
 
 @Dao

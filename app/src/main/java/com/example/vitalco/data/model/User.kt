@@ -1,4 +1,4 @@
-package com.example.vitalco.data.remote.model
+package com.example.vitalco.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

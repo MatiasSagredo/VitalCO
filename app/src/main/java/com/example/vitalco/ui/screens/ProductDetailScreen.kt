@@ -41,12 +41,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.model.Product
 import com.example.vitalco.data.validation.AdjustStockValidation
 import com.example.vitalco.data.validation.BuyValidation
 import com.example.vitalco.data.validation.EditProductValidation
 import com.example.vitalco.data.validation.SellValidation
-import com.example.vitalco.ui.viewmodel.HomeViewModel
+import com.example.vitalco.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

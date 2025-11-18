@@ -1,10 +1,10 @@
-package com.example.vitalco.ui.viewmodel
+package com.example.vitalco.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vitalco.data.remote.AppDatabase
-import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.model.Product
 import com.example.vitalco.data.repository.ProductRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

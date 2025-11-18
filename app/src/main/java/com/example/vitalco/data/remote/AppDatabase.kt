@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.vitalco.data.remote.dao.ProductDao
 import com.example.vitalco.data.remote.dao.UserDao
-import com.example.vitalco.data.remote.model.Product
-import com.example.vitalco.data.remote.model.User
+import com.example.vitalco.data.model.Product
+import com.example.vitalco.data.model.User
 
 @Database(entities = [User::class, Product::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {

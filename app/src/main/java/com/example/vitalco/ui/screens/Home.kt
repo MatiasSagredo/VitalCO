@@ -36,9 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.model.Product
 import com.example.vitalco.ui.components.ProductItem
-import com.example.vitalco.ui.viewmodel.HomeViewModel
+import com.example.vitalco.viewmodel.HomeViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

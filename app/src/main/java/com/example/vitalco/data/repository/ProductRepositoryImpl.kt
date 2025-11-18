@@ -1,7 +1,7 @@
 package com.example.vitalco.data.repository
 
 import com.example.vitalco.data.remote.dao.ProductDao
-import com.example.vitalco.data.remote.model.Product
+import com.example.vitalco.data.model.Product
 import kotlinx.coroutines.flow.Flow
 
 class ProductRepositoryImpl(

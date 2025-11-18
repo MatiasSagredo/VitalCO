@@ -1,4 +1,4 @@
-package com.example.vitalco.data.remote.model
+package com.example.vitalco.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -13,4 +13,3 @@ data class Product(
     val minStock: Int = 0,
     val priceClp: Double = 0.0
 )
-

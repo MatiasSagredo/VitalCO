@@ -6,4 +6,7 @@ import retrofit2.http.GET
 interface ApiService {
     @GET("/product")
     suspend fun getProducts(): List<Product>
+
+    @GET("/product/{:id}")
+    suspend fun getProductById(id: Int) : Product
 }

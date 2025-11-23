@@ -48,7 +48,7 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val currentUser by mainViewModel?.currentUser?.collectAsState() ?: remember { mutableStateOf(null) }
-    var username by remember(currentUser) { mutableStateOf(currentUser?.username ?: "") }
+    var username by remember(currentUser) { mutableStateOf(currentUser?.nombre ?: "") }
     var email by remember(currentUser) { mutableStateOf(currentUser?.email ?: "") }
     var isEditing by remember { mutableStateOf(false) }
 
@@ -120,7 +120,7 @@ fun ProfileScreen(
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text("Usuario") },
+                    label = { Text("Usuarios") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = isEditing
@@ -155,7 +155,7 @@ fun ProfileScreen(
 
                     Button(
                         onClick = {
-                            username = currentUser?.username ?: ""
+                            username = currentUser?.nombre ?: ""
                             email = currentUser?.email ?: ""
                             isEditing = false
                         },
@@ -190,8 +190,9 @@ fun ProfileScreen(
                     Text("Cerrar Sesión")
                 }
             } else {
-                Text("No hay usuario logueado")
+                Text("No hay Usuarios logueado")
             }
         }
     }
 }
+

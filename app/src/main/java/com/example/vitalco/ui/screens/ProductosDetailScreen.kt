@@ -41,17 +41,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.vitalco.data.model.Product
+import com.example.vitalco.data.model.Productos
 import com.example.vitalco.data.validation.AdjustStockValidation
 import com.example.vitalco.data.validation.BuyValidation
 import com.example.vitalco.data.validation.EditProductValidation
 import com.example.vitalco.data.validation.SellValidation
 import com.example.vitalco.viewmodel.HomeViewModel
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
-    product: Product,
+    product: Productos,
     viewModel: HomeViewModel = viewModel(),
     onBack: () -> Unit
 ) {
@@ -62,13 +63,11 @@ fun ProductDetailScreen(
     var showSellDialog by remember { mutableStateOf(false) }
     var showBuyDialog by remember { mutableStateOf(false) }
 
-    // Campos editables
-    var editName by remember { mutableStateOf(product.name) }
-    var editDescription by remember { mutableStateOf(product.description) }
-    var editPrice by remember { mutableStateOf(product.priceClp.toString()) }
+    var editName by remember { mutableStateOf(product.nombre) }
+    var editDescription by remember { mutableStateOf(product.descripcion) }
+    var editPrice by remember { mutableStateOf(product.precio.toString()) }
     var editErrorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Observar cambios en los productos del viewmodel
     val products by viewModel.products.collectAsState()
     LaunchedEffect(products) {
         val updated = products.find { it.id == product.id }
@@ -80,7 +79,7 @@ fun ProductDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isEditMode) "Editar Producto" else currentProduct.name) },
+                title = { Text(if (isEditMode) "Editar Productos" else currentProduct.nombre) },
                 navigationIcon = {
                     IconButton(onClick = {
                         if (isEditMode) isEditMode = false else onBack()
@@ -112,7 +111,7 @@ fun ProductDetailScreen(
                 // Modo edición
                 if (editErrorMessage != null) {
                     Text(
-                        text = editErrorMessage!!,
+                        text = editErrorMessage ?: "",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -120,7 +119,7 @@ fun ProductDetailScreen(
                 }
                 OutlinedTextField(
                     value = editName,
-                    onValueChange = { 
+                    onValueChange = {
                         editName = it
                         editErrorMessage = null
                     },
@@ -132,7 +131,7 @@ fun ProductDetailScreen(
 
                 OutlinedTextField(
                     value = editDescription,
-                    onValueChange = { 
+                    onValueChange = {
                         editDescription = it
                         editErrorMessage = null
                     },
@@ -144,7 +143,7 @@ fun ProductDetailScreen(
 
                 OutlinedTextField(
                     value = editPrice,
-                    onValueChange = { 
+                    onValueChange = {
                         editPrice = it
                         editErrorMessage = null
                     },
@@ -162,11 +161,11 @@ fun ProductDetailScreen(
                             editErrorMessage = error
                         } else {
                             val updatedProduct = product.copy(
-                                name = editName,
-                                description = editDescription,
-                                priceClp = editPrice.toDoubleOrNull() ?: product.priceClp
+                                nombre = editName,
+                                descripcion = editDescription,
+                                precio = editPrice.toDoubleOrNull() ?: product.precio
                             )
-                            viewModel.updateProductStock(updatedProduct, updatedProduct.currentStock)
+                            viewModel.updateProductosStock(updatedProduct, updatedProduct.stock_actual)
                             isEditMode = false
                         }
                     },
@@ -233,12 +232,12 @@ fun ProductDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Eliminar Producto") },
-            text = { Text("¿Estás seguro de que quieres eliminar ${currentProduct.name}?") },
+            title = { Text("Eliminar Productos") },
+            text = { Text("¿Estás seguro de que quieres eliminar ${currentProduct.nombre}?") },
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.deleteProduct(currentProduct)
+                        viewModel.deleteProductos(currentProduct)
                         showDeleteDialog = false
                         onBack()
                     },
@@ -262,7 +261,7 @@ fun ProductDetailScreen(
             product = currentProduct,
             onDismiss = { showAdjustStockDialog = false },
             onAdjust = { newStock ->
-                viewModel.updateProductStock(currentProduct, newStock)
+                viewModel.updateProductosStock(currentProduct, newStock)
                 showAdjustStockDialog = false
             }
         )
@@ -273,8 +272,8 @@ fun ProductDetailScreen(
             product = currentProduct,
             onDismiss = { showSellDialog = false },
             onSell = { quantity ->
-                val newStock = (currentProduct.currentStock - quantity).coerceAtLeast(0)
-                viewModel.updateProductStock(currentProduct, newStock)
+                val newStock = (currentProduct.stock_actual - quantity).coerceAtLeast(0)
+                viewModel.updateProductosStock(currentProduct, newStock)
                 showSellDialog = false
             }
         )
@@ -285,8 +284,8 @@ fun ProductDetailScreen(
             product = currentProduct,
             onDismiss = { showBuyDialog = false },
             onBuy = { quantity ->
-                val newStock = currentProduct.currentStock + quantity
-                viewModel.updateProductStock(currentProduct, newStock)
+                val newStock = currentProduct.stock_actual + quantity
+                viewModel.updateProductosStock(currentProduct, newStock)
                 showBuyDialog = false
             }
         )
@@ -294,7 +293,7 @@ fun ProductDetailScreen(
 }
 
 @Composable
-fun ProductDetailCard(product: Product) {
+fun ProductDetailCard(product: Productos) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -304,17 +303,15 @@ fun ProductDetailCard(product: Product) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            DetailRow("Nombre", product.name)
+            DetailRow("Nombre", product.nombre)
             Spacer(modifier = Modifier.height(8.dp))
-            DetailRow("Descripción", product.description.ifEmpty { "Sin descripción" })
+            DetailRow("Descripción", product.descripcion.ifEmpty { "Sin descripción" })
             Spacer(modifier = Modifier.height(8.dp))
-            DetailRow("SKU", product.sku)
+            DetailRow("Stock Actual", product.stock_actual.toString())
             Spacer(modifier = Modifier.height(8.dp))
-            DetailRow("Stock Actual", product.currentStock.toString())
+            DetailRow("Stock Mínimo", product.stock_minimo.toString())
             Spacer(modifier = Modifier.height(8.dp))
-            DetailRow("Stock Mínimo", product.minStock.toString())
-            Spacer(modifier = Modifier.height(8.dp))
-            DetailRow("Precio", "$${product.priceClp.toBigDecimal()}CLP")
+            DetailRow("Precio", "$${product.precio.toBigDecimal()}CLP")
         }
     }
 }
@@ -338,11 +335,11 @@ fun DetailRow(label: String, value: String) {
 
 @Composable
 fun AdjustStockDialog(
-    product: Product,
+    product: Productos,
     onDismiss: () -> Unit,
     onAdjust: (Int) -> Unit
 ) {
-    var newStock by remember { mutableStateOf(product.currentStock.toString()) }
+    var newStock by remember { mutableStateOf(product.stock_actual.toString()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -350,7 +347,7 @@ fun AdjustStockDialog(
         title = { Text("Ajustar Stock") },
         text = {
             Column {
-                Text("Stock actual: ${product.currentStock}")
+                Text("Stock actual: ${product.stock_actual}")
                 Spacer(modifier = Modifier.height(12.dp))
                 if (errorMessage != null) {
                     Text(
@@ -362,7 +359,7 @@ fun AdjustStockDialog(
                 }
                 OutlinedTextField(
                     value = newStock,
-                    onValueChange = { 
+                    onValueChange = {
                         newStock = it
                         errorMessage = null
                     },
@@ -398,7 +395,7 @@ fun AdjustStockDialog(
 
 @Composable
 fun SellQuantityDialog(
-    product: Product,
+    product: Productos,
     onDismiss: () -> Unit,
     onSell: (Int) -> Unit
 ) {
@@ -407,14 +404,14 @@ fun SellQuantityDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Vender ${product.name}") },
+        title = { Text("Vender ${product.nombre}") },
         text = {
             Column {
-                Text("Stock disponible: ${product.currentStock}")
+                Text("Stock disponible: ${product.stock_actual}")
                 Spacer(modifier = Modifier.height(12.dp))
                 if (errorMessage != null) {
                     Text(
-                        text = errorMessage!!,
+                        text = errorMessage ?: "",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -422,7 +419,7 @@ fun SellQuantityDialog(
                 }
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = { 
+                    onValueChange = {
                         quantity = it
                         errorMessage = null
                     },
@@ -435,7 +432,7 @@ fun SellQuantityDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val error = SellValidation.validateAll(quantity, product.currentStock)
+                    val error = SellValidation.validateAll(quantity, product.stock_actual)
                     if (error != null) {
                         errorMessage = error
                     } else {
@@ -458,7 +455,7 @@ fun SellQuantityDialog(
 
 @Composable
 fun BuyQuantityDialog(
-    product: Product,
+    product: Productos,
     onDismiss: () -> Unit,
     onBuy: (Int) -> Unit
 ) {
@@ -467,14 +464,14 @@ fun BuyQuantityDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Comprar ${product.name}") },
+        title = { Text("Comprar ${product.nombre}") },
         text = {
             Column {
-                Text("Stock actual: ${product.currentStock}")
+                Text("Stock actual: ${product.stock_actual}")
                 Spacer(modifier = Modifier.height(12.dp))
                 if (errorMessage != null) {
                     Text(
-                        text = errorMessage!!,
+                        text = errorMessage ?: "",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -482,7 +479,7 @@ fun BuyQuantityDialog(
                 }
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = { 
+                    onValueChange = {
                         quantity = it
                         errorMessage = null
                     },
@@ -515,3 +512,4 @@ fun BuyQuantityDialog(
         }
     )
 }
+

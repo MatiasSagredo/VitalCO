@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.vitalco"
-        minSdk = 33
+        minSdk = 34
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.room:room-runtime:2.8.2")
@@ -59,7 +58,6 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-    implementation(libs.androidx.material3)
     kapt("androidx.room:room-compiler:2.8.2")
     implementation("androidx.room:room-ktx:2.8.2")
     testImplementation(libs.junit)

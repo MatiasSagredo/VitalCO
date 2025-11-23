@@ -34,3 +34,4 @@ object EditProductValidation {
             ?: validatePrice(price)
     }
 }
+

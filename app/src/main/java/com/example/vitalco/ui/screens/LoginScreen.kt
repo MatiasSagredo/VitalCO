@@ -66,7 +66,7 @@ fun LoginScreen(
                 username = it
                 usernameError = ""
             },
-            label = { Text("Usuario") },
+            label = { Text("Usuarios") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             isError = usernameError.isNotEmpty()
@@ -119,8 +119,10 @@ fun LoginScreen(
                     val result = viewModel.login(username, password)
                     isLoading = false
                     if (result.isSuccess) {
-                        mainViewModel?.setCurrentUser(result.getOrNull()!!)
-                        onLoginSuccess()
+                        result.getOrNull()?.let { user ->
+                            mainViewModel?.setCurrentUser(user)
+                            onLoginSuccess()
+                        }
                     } else {
                         val error = result.exceptionOrNull()?.message ?: "Error desconocido"
                         when {

@@ -46,3 +46,4 @@ fun BottomBar(navController: NavHostController, items: List<BottomNavItem>) {
         }
     }
 }
+

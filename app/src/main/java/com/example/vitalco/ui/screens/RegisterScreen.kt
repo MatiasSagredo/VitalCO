@@ -77,7 +77,7 @@ fun RegisterScreen(
                 username = it
                 usernameError = ""
             },
-            label = { Text("Usuario") },
+            label = { Text("Usuarios") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             isError = usernameError.isNotEmpty()
@@ -190,7 +190,7 @@ fun RegisterScreen(
                     } else {
                         val error = result.exceptionOrNull()?.message ?: "Error desconocido"
                         when {
-                            error.contains("usuario") && error.contains("existe") -> usernameError = error
+                            error.contains("Usuarios") && error.contains("existe") -> usernameError = error
                             error.contains("email") -> emailError = error
                             error.contains("contraseña") -> passwordError = error
                             error.contains("requeridos") -> usernameError = error
@@ -219,3 +219,4 @@ fun RegisterScreen(
         }
     }
 }
+

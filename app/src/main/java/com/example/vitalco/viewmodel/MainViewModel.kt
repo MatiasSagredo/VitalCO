@@ -1,29 +1,32 @@
 package com.example.vitalco.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.example.vitalco.data.model.Product
-import com.example.vitalco.data.model.User
-import kotlinx.coroutines.flow.MutableStateFlow
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.example.vitalco.data.model.Usuarios
+import com.example.vitalco.data.model.Productos
+import com.example.vitalco.data.session.SessionManager
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val sessionManager = SessionManager(application)
+    
+    val currentUser: StateFlow<Usuarios?> = sessionManager.currentUser
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
+    private val _selectedProduct = MutableStateFlow<Productos?>(null)
+    val selectedProduct: StateFlow<Productos?> = _selectedProduct.asStateFlow()
 
-    private val _selectedProduct = MutableStateFlow<Product?>(null)
-    val selectedProduct: Product? get() = _selectedProduct.value
-
-    fun setCurrentUser(user: User) {
-        _currentUser.value = user
+    fun setCurrentUser(user: Usuarios) {
+        sessionManager.saveUser(user)
     }
 
     fun logout() {
-        _currentUser.value = null
+        sessionManager.logout()
     }
 
-    fun setSelectedProduct(product: Product) {
+    fun setSelectedProduct(product: Productos) {
         _selectedProduct.value = product
     }
 }
+

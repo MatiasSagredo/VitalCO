@@ -20,25 +20,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.vitalco.data.model.Product
-import com.example.vitalco.data.validation.AddProductValidation
+import com.example.vitalco.data.model.Productos
+import com.example.vitalco.data.validation.AddProductosValidation
+import java.time.Instant
 
 @Composable
 fun AddProductDialog(
     onDismiss: () -> Unit,
-    onAdd: (Product) -> Unit
+    onAdd: (Productos) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var sku by remember { mutableStateOf("") }
     var stock by remember { mutableStateOf("") }
     var minStock by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
+    var unidad by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Agregar Producto") },
+        title = { Text("Agregar Productos") },
         text = {
             Column(
                 modifier = Modifier
@@ -72,15 +73,6 @@ fun AddProductDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = sku,
-                    onValueChange = { sku = it },
-                    label = { Text("SKU") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
                     value = stock,
                     onValueChange = { stock = it },
                     label = { Text("Stock Actual") },
@@ -108,22 +100,32 @@ fun AddProductDialog(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = unidad,
+                    onValueChange = { unidad = it },
+                    label = { Text("Unidad de Medida") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val error = AddProductValidation.validateAll(name, sku, description, stock, minStock, price)
+                    val error = AddProductosValidation.validateAll(name, description, stock, minStock, price)
                     if (error != null) {
                         errorMessage = error
                     } else {
-                        val newProduct = Product(
-                            name = name,
-                            description = description,
-                            sku = sku,
-                            currentStock = stock.toIntOrNull() ?: 0,
-                            minStock = minStock.toIntOrNull() ?: 0,
-                            priceClp = price.toDoubleOrNull() ?: 0.0
+                        val newProduct = Productos(
+                            nombre = name,
+                            descripcion = description,
+                            stock_actual = stock.toIntOrNull() ?: 0,
+                            stock_minimo = minStock.toIntOrNull() ?: 0,
+                            precio = price.toDoubleOrNull() ?: 0.0,
+                            unidad = unidad,
+                            creado_en = Instant.now().toString()
                         )
                         onAdd(newProduct)
                         onDismiss()
@@ -140,3 +142,4 @@ fun AddProductDialog(
         }
     )
 }
+

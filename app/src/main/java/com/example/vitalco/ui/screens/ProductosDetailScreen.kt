@@ -46,14 +46,13 @@ import com.example.vitalco.data.validation.AdjustStockValidation
 import com.example.vitalco.data.validation.BuyValidation
 import com.example.vitalco.data.validation.EditProductValidation
 import com.example.vitalco.data.validation.SellValidation
-import com.example.vitalco.viewmodel.HomeViewModel
-import kotlinx.coroutines.flow.StateFlow
+import com.example.vitalco.viewmodel.ProductsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
     product: Productos,
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: ProductsViewModel = viewModel(),
     onBack: () -> Unit
 ) {
     var currentProduct by remember { mutableStateOf(product) }
@@ -68,9 +67,9 @@ fun ProductDetailScreen(
     var editPrice by remember { mutableStateOf(product.precio.toString()) }
     var editErrorMessage by remember { mutableStateOf<String?>(null) }
 
-    val products by viewModel.products.collectAsState()
-    LaunchedEffect(products) {
-        val updated = products.find { it.id == product.id }
+    val productos by viewModel.productos.collectAsState()
+    LaunchedEffect(productos) {
+        val updated = productos.find { it.id == product.id }
         if (updated != null) {
             currentProduct = updated
         }

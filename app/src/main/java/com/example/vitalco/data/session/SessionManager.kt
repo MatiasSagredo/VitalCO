@@ -16,7 +16,7 @@ class SessionManager(context: Context) {
             context.getSharedPreferences("vitalco_session", Context.MODE_PRIVATE)
         }
     }
-    
+
     private val _currentUser = MutableStateFlow<Usuarios?>(null)
     val currentUser: StateFlow<Usuarios?> = _currentUser.asStateFlow()
 
@@ -32,12 +32,12 @@ class SessionManager(context: Context) {
     fun saveUser(Usuarios: Usuarios) {
         try {
             prefs.edit().apply {
-                putInt("user_id", Usuarios.id)
+                Usuarios.id?.let { putInt("user_id", it) }
                 putString("user_nombre", Usuarios.nombre)
                 putString("user_email", Usuarios.email)
                 putString("user_password", Usuarios.password)
                 putString("user_rol", Usuarios.rol)
-                putLong("user_createdAt", Usuarios.creadoEn)
+                putString("user_createdAt", Usuarios.creadoEn)
                 apply()
             }
             _currentUser.value = Usuarios
@@ -56,7 +56,7 @@ class SessionManager(context: Context) {
                     email = prefs.getString("user_email", "") ?: "",
                     password = prefs.getString("user_password", "") ?: "",
                     rol = prefs.getString("user_rol", "") ?: "",
-                    creadoEn = prefs.getLong("user_createdAt", 0L)
+                    creadoEn = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss",java.util.Locale.getDefault()).format(java.util.Date())
                 )
             } else {
                 null

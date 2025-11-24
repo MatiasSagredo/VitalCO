@@ -44,15 +44,5 @@ interface UsuariosDao {
     @Query("DELETE FROM usuarios WHERE id = :id") suspend fun deleteUserById(id: Int)
 
     @Query("DELETE FROM usuarios") suspend fun deleteAllUsers()
-
-    @Transaction
-    suspend fun upsertUser(user: Usuarios) {
-        val existing = getUserById(user.id)
-        if (existing != null) {
-            updateUser(user)
-        } else {
-            insertUser(user)
-        }
-    }
 }
 

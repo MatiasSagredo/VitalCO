@@ -38,8 +38,11 @@ fun LoginScreen(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var showRegister by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     
     val viewModel: LoginViewModel = viewModel()
@@ -60,91 +63,208 @@ fun LoginScreen(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        OutlinedTextField(
-            value = username,
-            onValueChange = { 
-                username = it
-                usernameError = ""
-            },
-            label = { Text("Usuarios") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            isError = usernameError.isNotEmpty()
-        )
-        if (usernameError.isNotEmpty()) {
-            Text(
-                text = usernameError,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp, top = 4.dp)
+        if (!showRegister) {
+            // LOGIN
+            OutlinedTextField(
+                value = username,
+                onValueChange = { 
+                    username = it
+                    usernameError = ""
+                },
+                label = { Text("Usuario") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = usernameError.isNotEmpty()
             )
-        }
+            if (usernameError.isNotEmpty()) {
+                Text(
+                    text = usernameError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { 
-                password = it
-                passwordError = ""
-            },
-            label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            isError = passwordError.isNotEmpty()
-        )
-        if (passwordError.isNotEmpty()) {
-            Text(
-                text = passwordError,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp, top = 4.dp)
+            OutlinedTextField(
+                value = password,
+                onValueChange = { 
+                    password = it
+                    passwordError = ""
+                },
+                label = { Text("Contraseña") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                isError = passwordError.isNotEmpty()
             )
-        }
+            if (passwordError.isNotEmpty()) {
+                Text(
+                    text = passwordError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
-            onClick = {
-                usernameError = ""
-                passwordError = ""
-                
-                coroutineScope.launch {
-                    isLoading = true
-                    val result = viewModel.login(username, password)
-                    isLoading = false
-                    if (result.isSuccess) {
-                        result.getOrNull()?.let { user ->
-                            mainViewModel?.setCurrentUser(user)
-                            onLoginSuccess()
-                        }
-                    } else {
-                        val error = result.exceptionOrNull()?.message ?: "Error desconocido"
-                        when {
-                            error.contains("no existe") -> usernameError = error
-                            error.contains("incorrecta") -> passwordError = error
-                            else -> usernameError = error
+            Button(
+                onClick = {
+                    usernameError = ""
+                    passwordError = ""
+                    
+                    coroutineScope.launch {
+                        isLoading = true
+                        val result = viewModel.login(username, password)
+                        isLoading = false
+                        if (result.isSuccess) {
+                            result.getOrNull()?.let { user ->
+                                mainViewModel?.setCurrentUser(user)
+                                onLoginSuccess()
+                            }
+                        } else {
+                            val error = result.exceptionOrNull()?.message ?: "Error desconocido"
+                            when {
+                                error.contains("no existe") -> usernameError = error
+                                error.contains("incorrecta") -> passwordError = error
+                                else -> usernameError = error
+                            }
                         }
                     }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            enabled = !isLoading && username.isNotEmpty() && password.isNotEmpty()
-        ) {
-            Text(if (isLoading) "Iniciando..." else "Iniciar Sesión")
-        }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                enabled = !isLoading && username.isNotEmpty() && password.isNotEmpty()
+            ) {
+                Text(if (isLoading) "Iniciando..." else "Iniciar Sesión")
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onNavigateToRegister) {
-            Text("¿No tienes cuenta? Regístrate")
+            TextButton(onClick = { showRegister = true }) {
+                Text("¿No tienes cuenta? Regístrate")
+            }
+        } else {
+            // REGISTER
+            OutlinedTextField(
+                value = username,
+                onValueChange = { 
+                    username = it
+                    usernameError = ""
+                },
+                label = { Text("Usuario") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = usernameError.isNotEmpty()
+            )
+            if (usernameError.isNotEmpty()) {
+                Text(
+                    text = usernameError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { 
+                    email = it
+                    emailError = ""
+                },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = emailError.isNotEmpty()
+            )
+            if (emailError.isNotEmpty()) {
+                Text(
+                    text = emailError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { 
+                    password = it
+                    passwordError = ""
+                },
+                label = { Text("Contraseña") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                isError = passwordError.isNotEmpty()
+            )
+            if (passwordError.isNotEmpty()) {
+                Text(
+                    text = passwordError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    usernameError = ""
+                    emailError = ""
+                    passwordError = ""
+                    
+                    coroutineScope.launch {
+                        isLoading = true
+                        val result = viewModel.register(username, email, password)
+                        isLoading = false
+                        if (result.isSuccess) {
+                            result.getOrNull()?.let { user ->
+                                mainViewModel?.setCurrentUser(user)
+                                onLoginSuccess()
+                            }
+                        } else {
+                            val error = result.exceptionOrNull()?.message ?: "Error desconocido"
+                            when {
+                                error.contains("ya está registrado") -> usernameError = error
+                                error.contains("ya está en uso") -> emailError = error
+                                error.contains("mínimo") -> passwordError = error
+                                else -> usernameError = error
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                enabled = !isLoading && username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()
+            ) {
+                Text(if (isLoading) "Registrando..." else "Registrarse")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = { showRegister = false }) {
+                Text("¿Ya tienes cuenta? Inicia sesión")
+            }
         }
     }
 }

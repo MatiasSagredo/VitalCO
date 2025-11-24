@@ -47,15 +47,5 @@ interface MovimientosStockDao {
     suspend fun deleteMovimientosByProductos(productosId: Int)
 
     @Query("DELETE FROM movimientos_stock") suspend fun deleteAllMovimientos()
-
-    @Transaction
-    suspend fun upsertMovimiento(movimiento: MovimientosStock) {
-        val existing = getMovimientoById(movimiento.id)
-        if (existing != null) {
-            updateMovimiento(movimiento)
-        } else {
-            insertMovimiento(movimiento)
-        }
-    }
 }
 

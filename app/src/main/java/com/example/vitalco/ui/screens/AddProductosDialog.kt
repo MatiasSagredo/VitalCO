@@ -119,6 +119,7 @@ fun AddProductDialog(
                         errorMessage = error
                     } else {
                         val newProduct = Productos(
+                            id = null,
                             nombre = name,
                             descripcion = description,
                             stock_actual = stock.toIntOrNull() ?: 0,

@@ -11,7 +11,7 @@ class MovimientosStockRepositoryImpl(
 
     override suspend fun getMovimientosStock(): List<MovimientosStock> {
         val localMovimientos = movimientosStockDao.getAllMovimientos()
-        
+
         try {
             val response = apiService.getMovimientosStock()
             if (response.isSuccessful) {
@@ -23,8 +23,8 @@ class MovimientosStockRepositoryImpl(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
-        return localMovimientos
+
+        return movimientosStockDao.getAllMovimientos()
     }
 
     override suspend fun getMovimientoStockById(id: Int): MovimientosStock? {
@@ -58,7 +58,7 @@ class MovimientosStockRepositoryImpl(
 
     override suspend fun updateMovimientoStock(movimiento: MovimientosStock) {
         try {
-            val response = apiService.updateMovimientosStock(movimiento.id, movimiento)
+            val response = apiService.updateMovimientosStock(movimiento.id ?: 0, movimiento)
             if (response.isSuccessful) {
                 response.body()?.let { movimientosStockDao.updateMovimiento(it) }
             } else {
@@ -71,7 +71,7 @@ class MovimientosStockRepositoryImpl(
 
     override suspend fun deleteMovimientoStock(movimiento: MovimientosStock) {
         try {
-            apiService.deleteMovimientosStock(movimiento.id)
+            movimiento.id?.let { apiService.deleteMovimientosStock(it) }
         } catch (e: Exception) {
         }
         movimientosStockDao.deleteMovimiento(movimiento)

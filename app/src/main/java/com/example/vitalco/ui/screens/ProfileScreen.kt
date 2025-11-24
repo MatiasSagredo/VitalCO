@@ -1,9 +1,11 @@
 package com.example.vitalco.ui.screens
 
 import android.Manifest
+import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,9 +37,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.vitalco.viewmodel.MainViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,12 +56,15 @@ fun ProfileScreen(
     var username by remember(currentUser) { mutableStateOf(currentUser?.nombre ?: "") }
     var email by remember(currentUser) { mutableStateOf(currentUser?.email ?: "") }
     var isEditing by remember { mutableStateOf(false) }
+    var photoBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var photoPath by remember { mutableStateOf<String?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
         if (bitmap != null) {
-            // Foto capturada exitosamente
+            photoBitmap = bitmap
+            photoPath = saveBitmapToFile(context, bitmap, currentUser?.id.toString())
         }
     }
 
@@ -86,7 +94,7 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Avatar con ícono de cámara
+            // Avatar con ícono de cámara o foto
             Surface(
                 modifier = Modifier
                     .size(120.dp)
@@ -96,20 +104,29 @@ fun ProfileScreen(
                     },
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Camera,
-                    contentDescription = "Tomar foto",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(30.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (photoBitmap != null) {
+                    Image(
+                        bitmap = photoBitmap!!.asImageBitmap(),
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Camera,
+                        contentDescription = "Tomar foto",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(30.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Toca para tomar foto",
+                text = if (photoPath != null) "Foto guardada" else "Toca para tomar foto",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -196,3 +213,11 @@ fun ProfileScreen(
     }
 }
 
+private fun saveBitmapToFile(context: android.content.Context, bitmap: Bitmap, userId: String): String {
+    val cacheDir = context.cacheDir
+    val file = File(cacheDir, "profile_${userId}_${System.currentTimeMillis()}.jpg")
+    file.outputStream().use { out ->
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+    }
+    return file.absolutePath
+}

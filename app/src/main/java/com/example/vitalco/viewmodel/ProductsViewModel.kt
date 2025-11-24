@@ -7,6 +7,7 @@ import com.example.vitalco.data.model.Productos
 import com.example.vitalco.data.remote.AppDatabase
 import com.example.vitalco.data.remote.RetrofitInstance
 import com.example.vitalco.data.repository.ProductosRepositoryImpl
+import com.example.vitalco.data.repository.MovimientosStockRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +19,10 @@ import kotlinx.coroutines.withContext
 class ProductsViewModel(application: Application) : AndroidViewModel(application) {
     private val productRepository = ProductosRepositoryImpl(
         AppDatabase.getDatabase(application).productDao(),
+        RetrofitInstance.apiService
+    )
+    private val movimientosRepository = MovimientosStockRepositoryImpl(
+        AppDatabase.getDatabase(application).stockMovementsDao(),
         RetrofitInstance.apiService
     )
 
@@ -59,7 +64,8 @@ class ProductsViewModel(application: Application) : AndroidViewModel(application
     }
 
     init {
-        // Carga será triggered por LaunchedEffect en ProductScreen
+        loadAllProductos()
+        loadLowStockProductos()
     }
 
     fun loadAllProductos() {
@@ -131,6 +137,9 @@ class ProductsViewModel(application: Application) : AndroidViewModel(application
                     _error.value = null
                 }
                 productRepository.addProductos(productos)
+                withContext(Dispatchers.Main) {
+                    _isLoading.value = false
+                }
                 loadAllProductos()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -149,9 +158,31 @@ class ProductsViewModel(application: Application) : AndroidViewModel(application
                     _isLoading.value = true
                     _error.value = null
                 }
+                val oldStock = productos.stock_actual
+                val diferencia = newStock - oldStock
                 val updated = productos.copy(stock_actual = newStock)
                 productRepository.updateProductos(updated)
+
+                if (diferencia != 0 && productos.id != null) {
+                    val tipoMovimiento = if (diferencia > 0) "entrada" else "salida"
+                    val movimiento = com.example.vitalco.data.model.MovimientosStock(
+                        id = null,
+                        idProducto = productos.id,
+                        tipoMovimiento = tipoMovimiento,
+                        cantidad = kotlin.math.abs(diferencia),
+                        fecha = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+                    )
+                    try {
+                        movimientosRepository.addMovimientoStock(movimiento)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                
                 loadAllProductos()
+                withContext(Dispatchers.Main) {
+                    _isLoading.value = false
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _error.value = e.message ?: "Error al actualizar stock"
@@ -170,6 +201,9 @@ class ProductsViewModel(application: Application) : AndroidViewModel(application
                     _error.value = null
                 }
                 productRepository.deleteProductos(productos)
+                withContext(Dispatchers.Main) {
+                    _isLoading.value = false
+                }
                 loadAllProductos()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

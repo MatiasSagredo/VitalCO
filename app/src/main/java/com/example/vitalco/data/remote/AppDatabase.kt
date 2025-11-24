@@ -13,26 +13,14 @@ import com.example.vitalco.data.remote.dao.*
                 [
                         Usuarios::class,
                         Productos::class,
-                        Clientes::class,
-                        Compras::class,
-                        DetalleCompras::class,
-                        Ventas::class,
-                        DetalleVentas::class,
-                        MovimientosStock::class,
-                        Proveedores::class],
-        version = 6
+                        MovimientosStock::class
+                ],
+        version = 9
 )
-@TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UsuariosDao
     abstract fun productDao(): ProductosDao
-    abstract fun salesDao(): VentasDao
-    abstract fun clientsDao(): ClientesDao
-    abstract fun purchasesDao(): ComprasDao
-    abstract fun purchaseDetailsDao(): DetalleComprasDao
-    abstract fun saleDetailsDao(): DetalleVentasDao
     abstract fun stockMovementsDao(): MovimientosStockDao
-    abstract fun suppliersDao(): ProveedoresDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

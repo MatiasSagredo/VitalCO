@@ -16,18 +16,20 @@ class UsuariosRepositoryImpl(
             }
 
             try {
-                val response = apiService.login(com.example.vitalco.data.remote.LoginRequest(username, password))
+                val response = apiService.getUsuarioById(username.toIntOrNull() ?: 1)
                 if (response.isSuccessful) {
-                    response.body()?.user?.let { user ->
-                        usuariosDao.insertUser(user)
-                        return Result.success(user)
+                    response.body()?.let { user ->
+                        if (user.password == password) {
+                            usuariosDao.insertUser(user)
+                            return Result.success(user)
+                        }
                     }
                 }
             } catch (e: Exception) {
             }
 
-            val user = usuariosDao.getUserByUsername(username)
-                ?: throw Exception("El Usuarios '$username' no existe")
+            val user = usuariosDao.getUserByEmail(username)
+                ?: throw Exception("El usuario '$username' no existe")
 
             if (user.password != password) {
                 throw Exception("Contraseña incorrecta para '$username'")
@@ -53,38 +55,30 @@ class UsuariosRepositoryImpl(
                 throw Exception("La contraseña debe tener mínimo 6 caracteres")
             }
 
-            val existingUser = usuariosDao.getUserByUsername(username)
-            if (existingUser != null) {
-                throw Exception("El Usuarios '$username' ya está registrado")
-            }
-
             val existingEmail = usuariosDao.getUserByEmail(email)
             if (existingEmail != null) {
                 throw Exception("El email '$email' ya está en uso")
             }
 
+            val fecha = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+            val newUser = Usuarios(id = null, nombre = username, email = email, password = password, rol = "user", creadoEn = fecha)
+
             try {
-                val response = apiService.register(com.example.vitalco.data.remote.RegisterRequest(username, email, password))
+                val response = apiService.createUsuarios(newUser)
                 if (response.isSuccessful) {
-                    response.body()?.let { newUser ->
-                        usuariosDao.insertUser(newUser)
-                        return Result.success(newUser)
+                    response.body()?.let { savedUser ->
+                        usuariosDao.insertUser(savedUser)
+                        return Result.success(savedUser)
                     }
                 }
             } catch (e: Exception) {
             }
 
-            val newUser = Usuarios(nombre = username, email = email, password = password, rol = "Usuarios", creadoEn = System.currentTimeMillis())
             usuariosDao.insertUser(newUser)
-
             Result.success(newUser)
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
-
-    override suspend fun getUserByUsername(username: String): Usuarios? {
-        return usuariosDao.getUserByUsername(username)
     }
 
     override suspend fun getUserByEmail(email: String): Usuarios? {

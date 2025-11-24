@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 sealed class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
     object Home : BottomNavItem(Routes.HOME, "Inicio", Icons.Filled.Home)
+    object Products : BottomNavItem(Routes.PRODUCTS, "Productos", Icons.Filled.Home)
     object Profile : BottomNavItem(Routes.PROFILE, "Perfil", Icons.Filled.AccountCircle)
 }
 

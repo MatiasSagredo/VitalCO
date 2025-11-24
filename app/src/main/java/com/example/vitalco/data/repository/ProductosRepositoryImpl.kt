@@ -24,7 +24,7 @@ class ProductosRepositoryImpl(
 
     override suspend fun updateProductos(productos: Productos) {
         try {
-            val response = apiService.updateProductos(productos.id, productos)
+            val response = apiService.updateProductos(productos.id ?: 0, productos)
             if (response.isSuccessful) {
                 response.body()?.let { productosDao.updateProductos(it) }
             } else {
@@ -37,7 +37,7 @@ class ProductosRepositoryImpl(
 
     override suspend fun deleteProductos(productos: Productos) {
         try {
-            apiService.deleteProductos(productos.id)
+            productos.id?.let { apiService.deleteProductos(it) }
         } catch (e: Exception) {
         }
         productosDao.deleteProductos(productos)
@@ -47,7 +47,7 @@ class ProductosRepositoryImpl(
         return try {
             val response = apiService.getProductoById(id)
             if (response.isSuccessful) {
-                response.body()?.let { 
+                response.body()?.let {
                     productosDao.insertProduct(it)
                     it
                 } ?: productosDao.getProductoById(id)
@@ -61,20 +61,20 @@ class ProductosRepositoryImpl(
 
     override suspend fun getAllProductos(): List<Productos> {
         val localProducts = productosDao.getAllProducts()
-        
+
         try {
             val response = apiService.getProductos()
             if (response.isSuccessful) {
-                response.body()?.let { products ->
+                response.body()?.let { productos ->
                     productosDao.deleteAllProducts()
-                    productosDao.insertProducts(products)
+                    productosDao.insertProducts(productos)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
-        return localProducts
+
+        return productosDao.getAllProducts()
     }
 
     override suspend fun getLowStockProductos(): List<Productos> {

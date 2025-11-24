@@ -31,6 +31,7 @@ import com.example.vitalco.ui.screens.ProductDetailScreen
 import com.example.vitalco.ui.screens.ProductScreen
 import com.example.vitalco.ui.screens.ProfileScreen
 import com.example.vitalco.ui.screens.RegisterScreen
+import com.example.vitalco.ui.screens.MovimientosStockScreen
 import com.example.vitalco.ui.theme.VitalCOTheme
 import com.example.vitalco.viewmodel.MainViewModel
 import androidx.compose.runtime.collectAsState
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    val bottomItems = listOf(BottomNavItem.Home, BottomNavItem.Profile)
+    val bottomItems = listOf(BottomNavItem.Home, BottomNavItem.Products, BottomNavItem.Profile)
     val mainViewModel: MainViewModel = viewModel()
 
     val currentUser by mainViewModel.currentUser.collectAsState()
@@ -132,9 +133,21 @@ fun App() {
                 ) { innerPadding ->
                     HomeScreen(
                         modifier = Modifier.padding(innerPadding),
-                        navController = navController
+                        navController = navController,
+                        onNavigateToMovimientos = {
+                            navController.navigate(Routes.MOVIMIENTOS)
+                        }
                     )
                 }
+            }
+            composable(
+                Routes.MOVIMIENTOS,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(500, easing = EaseInOutCubic)) + fadeIn(animationSpec = tween(500)) },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300, easing = EaseInOutCubic)) + fadeOut(animationSpec = tween(300)) }
+            ) {
+                MovimientosStockScreen(
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable(
                 Routes.PRODUCT_DETAIL,

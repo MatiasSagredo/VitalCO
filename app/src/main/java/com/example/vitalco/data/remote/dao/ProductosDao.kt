@@ -44,15 +44,5 @@ interface ProductosDao {
     @Query("DELETE FROM productos WHERE id = :id") suspend fun deleteProductosById(id: Int)
 
     @Query("DELETE FROM productos") suspend fun deleteAllProducts()
-
-    @Transaction
-    suspend fun upsertProduct(product: Productos) {
-        val existing = getProductoById(product.id)
-        if (existing != null) {
-            updateProductos(product)
-        } else {
-            insertProduct(product)
-        }
-    }
 }
 

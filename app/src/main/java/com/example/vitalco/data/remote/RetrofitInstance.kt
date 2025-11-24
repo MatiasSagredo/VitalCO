@@ -2,6 +2,7 @@ package com.example.vitalco.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.google.gson.GsonBuilder
 
 object RetrofitInstance {
 

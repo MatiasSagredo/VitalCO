@@ -7,5 +7,6 @@ object Routes {
     const val HOME = "home"
     const val PRODUCTS = "products"
     const val PRODUCT_DETAIL = "product_detail"
+    const val MOVIMIENTOS = "movimientos"
 }
 

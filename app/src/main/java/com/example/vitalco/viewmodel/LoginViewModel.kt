@@ -17,9 +17,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     )
     private val sessionManager = SessionManager(application)
 
-    suspend fun login(username: String, password: String): Result<Usuarios> {
+    suspend fun login(nombreUsuario: String, contrasena: String): Result<Usuarios> {
         return withContext(Dispatchers.IO) {
-            usuariosRepository.login(username, password).also { result ->
+            usuariosRepository.login(nombreUsuario, contrasena).also { result ->
                 result.getOrNull()?.let { user ->
                     sessionManager.saveUser(user)
                 }
@@ -27,9 +27,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    suspend fun register(username: String, email: String, password: String): Result<Usuarios> {
+    suspend fun register(nombreUsuario: String, correo: String, contrasena: String): Result<Usuarios> {
         return withContext(Dispatchers.IO) {
-            usuariosRepository.register(username, email, password).also { result ->
+            usuariosRepository.register(nombreUsuario, correo, contrasena).also { result ->
                 result.getOrNull()?.let { user ->
                     sessionManager.saveUser(user)
                 }
@@ -37,4 +37,3 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
-

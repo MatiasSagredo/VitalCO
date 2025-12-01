@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.vitalco.viewmodel.MainViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +60,50 @@ fun ProfileScreen(
     var email by remember(currentUser) { mutableStateOf(currentUser?.email ?: "") }
     var isEditing by remember { mutableStateOf(false) }
     var photoBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var photoPath by remember { mutableStateOf<String?>(null) }
+    var photoPath by remember(currentUser) { mutableStateOf(currentUser?.imagen) }
+
+    LaunchedEffect(Unit) {
+        mainViewModel?.refreshCurrentUser()
+    }
+
+    LaunchedEffect(photoPath) {
+        if (photoPath != null) {
+            println("DEBUG: Iniciando carga de imagen. Path: $photoPath")
+            val bitmap = withContext(Dispatchers.IO) {
+                try {
+                    if (photoPath!!.startsWith("http")) {
+                        println("DEBUG: Cargando desde URL")
+                        // Cargar desde URL
+                        val url = java.net.URL(photoPath)
+                        android.graphics.BitmapFactory.decodeStream(url.openStream())
+                    } else {
+                        println("DEBUG: Cargando desde archivo local")
+                        // Cargar desde archivo local
+                        val file = File(photoPath!!)
+                        if (file.exists()) {
+                            println("DEBUG: Archivo local existe: ${file.absolutePath}")
+                            android.graphics.BitmapFactory.decodeFile(file.absolutePath)
+                        } else {
+                            println("DEBUG: Archivo local NO existe: ${file.absolutePath}")
+                            null
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("DEBUG: Excepción al cargar imagen: ${e.message}")
+                    e.printStackTrace()
+                    null
+                }
+            }
+            if (bitmap != null) {
+                println("DEBUG: Bitmap decodificado correctamente")
+                photoBitmap = bitmap
+            } else {
+                println("DEBUG: Bitmap es null después de intentar cargar")
+            }
+        } else {
+             println("DEBUG: photoPath es null")
+        }
+    }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
@@ -159,6 +205,14 @@ fun ProfileScreen(
                 if (isEditing) {
                     Button(
                         onClick = {
+                            currentUser?.let { user ->
+                                val updatedUser = user.copy(
+                                    nombre = username,
+                                    email = email,
+                                    imagen = photoPath ?: user.imagen
+                                )
+                                mainViewModel?.updateUserProfile(updatedUser)
+                            }
                             isEditing = false
                         },
                         modifier = Modifier
@@ -214,8 +268,8 @@ fun ProfileScreen(
 }
 
 private fun saveBitmapToFile(context: android.content.Context, bitmap: Bitmap, userId: String): String {
-    val cacheDir = context.cacheDir
-    val file = File(cacheDir, "profile_${userId}_${System.currentTimeMillis()}.jpg")
+    val filesDir = context.filesDir
+    val file = File(filesDir, "profile_${userId}_${System.currentTimeMillis()}.jpg")
     file.outputStream().use { out ->
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
     }

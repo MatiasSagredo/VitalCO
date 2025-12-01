@@ -29,18 +29,19 @@ class SessionManager(context: Context) {
         }
     }
 
-    fun saveUser(Usuarios: Usuarios) {
+    fun saveUser(usuario: Usuarios) {
         try {
             prefs.edit().apply {
-                Usuarios.id?.let { putInt("user_id", it) }
-                putString("user_nombre", Usuarios.nombre)
-                putString("user_email", Usuarios.email)
-                putString("user_password", Usuarios.password)
-                putString("user_rol", Usuarios.rol)
-                putString("user_createdAt", Usuarios.creadoEn)
+                usuario.id?.let { putInt("user_id", it) }
+                putString("user_nombre", usuario.nombre)
+                putString("user_email", usuario.email)
+                putString("user_password", usuario.password)
+                putString("user_rol", usuario.rol)
+                putString("user_createdAt", usuario.creadoEn)
+                putString("user_imagen", usuario.imagen)
                 apply()
             }
-            _currentUser.value = Usuarios
+            _currentUser.value = usuario
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -56,7 +57,8 @@ class SessionManager(context: Context) {
                     email = prefs.getString("user_email", "") ?: "",
                     password = prefs.getString("user_password", "") ?: "",
                     rol = prefs.getString("user_rol", "") ?: "",
-                    creadoEn = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss",java.util.Locale.getDefault()).format(java.util.Date())
+                    creadoEn = prefs.getString("user_createdAt", null),
+                    imagen = prefs.getString("user_imagen", null)
                 )
             } else {
                 null

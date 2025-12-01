@@ -15,7 +15,7 @@ import com.example.vitalco.data.remote.dao.*
                         Productos::class,
                         MovimientosStock::class
                 ],
-        version = 9
+        version = 10
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UsuariosDao
@@ -31,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                         Room.databaseBuilder(
                                         context.applicationContext,
                                         AppDatabase::class.java,
-                                        "vitalco_db"
+                                        "vitalco_db",
                                 )
                                 .fallbackToDestructiveMigration()
                                 .build()

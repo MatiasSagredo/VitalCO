@@ -36,15 +36,15 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel? = null
 ) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var nombreUsuario by remember { mutableStateOf("") }
+    var contrasena by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf("") }
     var showRegister by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    
+
     val viewModel: LoginViewModel = viewModel()
     val coroutineScope = rememberCoroutineScope()
 
@@ -66,9 +66,9 @@ fun LoginScreen(
         if (!showRegister) {
             // LOGIN
             OutlinedTextField(
-                value = username,
-                onValueChange = { 
-                    username = it
+                value = nombreUsuario,
+                onValueChange = {
+                    nombreUsuario = it
                     usernameError = ""
                 },
                 label = { Text("Usuario") },
@@ -90,9 +90,9 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { 
-                    password = it
+                value = contrasena,
+                onValueChange = {
+                    contrasena = it
                     passwordError = ""
                 },
                 label = { Text("Contraseña") },
@@ -118,10 +118,10 @@ fun LoginScreen(
                 onClick = {
                     usernameError = ""
                     passwordError = ""
-                    
+
                     coroutineScope.launch {
                         isLoading = true
-                        val result = viewModel.login(username, password)
+                        val result = viewModel.login(nombreUsuario, contrasena)
                         isLoading = false
                         if (result.isSuccess) {
                             result.getOrNull()?.let { user ->
@@ -141,7 +141,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                enabled = !isLoading && username.isNotEmpty() && password.isNotEmpty()
+                enabled = !isLoading && nombreUsuario.isNotEmpty() && contrasena.isNotEmpty()
             ) {
                 Text(if (isLoading) "Iniciando..." else "Iniciar Sesión")
             }
@@ -154,9 +154,9 @@ fun LoginScreen(
         } else {
             // REGISTER
             OutlinedTextField(
-                value = username,
-                onValueChange = { 
-                    username = it
+                value = nombreUsuario,
+                onValueChange = {
+                    nombreUsuario = it
                     usernameError = ""
                 },
                 label = { Text("Usuario") },
@@ -178,9 +178,9 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { 
-                    email = it
+                value = correo,
+                onValueChange = {
+                    correo = it
                     emailError = ""
                 },
                 label = { Text("Email") },
@@ -202,9 +202,9 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { 
-                    password = it
+                value = contrasena,
+                onValueChange = {
+                    contrasena = it
                     passwordError = ""
                 },
                 label = { Text("Contraseña") },
@@ -231,10 +231,10 @@ fun LoginScreen(
                     usernameError = ""
                     emailError = ""
                     passwordError = ""
-                    
+
                     coroutineScope.launch {
                         isLoading = true
-                        val result = viewModel.register(username, email, password)
+                        val result = viewModel.register(nombreUsuario, correo, contrasena)
                         isLoading = false
                         if (result.isSuccess) {
                             result.getOrNull()?.let { user ->
@@ -255,7 +255,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                enabled = !isLoading && username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()
+                enabled = !isLoading && nombreUsuario.isNotEmpty() && correo.isNotEmpty() && contrasena.isNotEmpty()
             ) {
                 Text(if (isLoading) "Registrando..." else "Registrarse")
             }
@@ -268,4 +268,3 @@ fun LoginScreen(
         }
     }
 }
-

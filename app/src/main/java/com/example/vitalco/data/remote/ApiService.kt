@@ -20,7 +20,9 @@ interface ApiService {
 
     @GET("usuarios") suspend fun getUsuarios(): Response<List<Usuarios>>
     @GET("usuarios/{id}") suspend fun getUsuarioById(@Path("id") id: Int): Response<Usuarios>
+    @GET("usuarios/id/{id}") suspend fun getUsuarioByIdDirect(@Path("id") id: Int): Response<Usuarios>
+    @GET("usuarios/username/{name}") suspend fun getUsuarioByUsername(@Path("name") name: String): Response<Usuarios>
     @POST("usuarios") suspend fun createUsuarios(@Body usuarios: Usuarios): Response<Usuarios>
-    @PUT("usuarios/{id}") suspend fun updateUsuarios(@Path("id") id: Int, @Body usuarios: Usuarios): Response<Usuarios>
+    @PUT("usuarios/{id}") suspend fun updateUsuarios(@Path("id") id: Int, @Body usuarios: UserUpdateRequest): Response<Usuarios>
     @DELETE("usuarios/{id}") suspend fun deleteUsuarios(@Path("id") id: Int): Response<Unit>
 }

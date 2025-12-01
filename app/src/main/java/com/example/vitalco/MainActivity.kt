@@ -39,9 +39,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.example.vitalco.data.model.Productos
 
+import com.cloudinary.android.MediaManager
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        try {
+            val config = HashMap<String, Any>()
+            config["cloud_name"] = "dkhjnwrvi"
+            config["secure"] = true
+            MediaManager.init(this, config)
+        } catch (e: Exception) {
+            // MediaManager already initialized
+        }
+
         enableEdgeToEdge()
         setContent {
             VitalCOTheme { App() }

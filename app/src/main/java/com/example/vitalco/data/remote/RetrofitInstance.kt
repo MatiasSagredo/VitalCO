@@ -8,7 +8,7 @@ object RetrofitInstance {
 
     val api: ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://api-datosmoviles.onrender.com/api/")
+            .baseUrl("https://vitalapi-uo52.onrender.com/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
